@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- کد زیر آیکون تب مرورگر را تغییر می‌دهد -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <title>جدول امتیازات بازی</title>
+    <style>
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 95vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        /* استایل‌های مربوط به هدر و لوگو */
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .header-section h1 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .app-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%; /* این خط لوگو را دایره‌ای می‌کند */
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #eee;
+            justify-content: space-between;
+        }
+        
+        .guest-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+            width: 150px;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        .btn-select-players { background-color: #f39c12; color: white; font-size: 15px; }
+        .btn-select-players:hover { background-color: #d68910; }
+        .btn-add-player { background-color: #27ae60; color: white; }
+        .btn-add-player:hover { background-color: #219150; }
+        .btn-add-round { background-color: #8e44ad; color: white; }
+        .btn-add-round:hover { background-color: #732d91; }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            min-width: 90px;
+        }
+        th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 60px;
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1em;
+        }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        .total-col {
+            background-color: #fff3cd;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #d35400;
+        }
+
+        /* پاپ‌آپ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2980b9;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .checkbox-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 5px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9f9;
+            border: 1px solid #e5e8e8;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .checkbox-item:hover {
+            background: #e8f6f3;
+            border-color: #1abc9c;
+        }
+        .checkbox-item input {
+            margin-left: 15px;
+            transform: scale(1.3);
+            cursor: pointer;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn-confirm { background-color: #3498db; color: white; width: 100%; font-size: 1.1em; padding: 12px;}
+        .btn-confirm:hover { background-color: #2980b9; }
+        .btn-cancel { background-color: #95a5a6; color: white; margin-left: 10px;}
+        .btn-cancel:hover { background-color: #7f8c8d; }
+
+        /* استایل پاورقی (ریز) */
+        .credit {
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            margin-top: 25px;
+            direction: ltr;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- بخش جدید هدر شامل لوگو و عنوان -->
+    <div class="header-section">
+        <img src="logo.png" alt="لوگوی بازی" class="app-logo" onerror="this.style.display='none'">
+        <h1>📝 جدول نتایج بازی</h1>
+    </div>
+    
+    <div class="controls">
+        <button class="btn-select-players" onclick="openModal()">👥 انتخاب بازیکن‌ها</button>
+        
+        <div class="guest-group">
+            <input type="text" id="guestName" placeholder="نام مهمان...">
+            <button class="btn-add-player" onclick="addGuestPlayer()">+ مهمان</button>
+        </div>
+        
+        <button class="btn-add-round" onclick="addRound()">+ افزودن دور جدید</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="scoreTable">
+            <thead>
+                <tr id="headerRow">
+                    <th>نام بازیکن</th>
+                    <th class="total-col">جمع کل</th>
+                </tr>
+            </thead>
+            <tbody id="playerRows">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="credit">Created by EhsanJabbari</div>
+
+<div class="modal-overlay" id="playersModal">
+    <div class="modal-box">
+        <div class="modal-header">افراد حاضر در بازی را انتخاب کنید</div>
+        <div class="checkbox-list" id="modalCheckboxList"></div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal()">انصراف</button>
+            <button class="btn-confirm" onclick="confirmPlayers()">✔️ تایید و ورود</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let roundCount = 0;
+    
+    const defaultPlayersList = [
+        'مهرداد', 'رامین', 'حسین راموس', 'حسین راد', 'احسان', 
+        'اشکان', 'ایمان', 'محسن', 'مهدی', 'امیر حسین'
+    ];
+
+    function getSafeId(name) {
+        return 'cb-' + name.replace(/\s+/g, '-');
+    }
+
+    function renderCheckboxes() {
+        const listContainer = document.getElementById('modalCheckboxList');
+        let htmlContent = '';
+        
+        defaultPlayersList.forEach(name => {
+            htmlContent += `
+                <label class="checkbox-item">
+                    <input type="checkbox" id="${getSafeId(name)}" value="${name}">
+                    <span>${name}</span>
+                </label>
+            `;
+        });
+        listContainer.innerHTML = htmlContent;
+    }
+
+    renderCheckboxes();
+
+    function openModal() {
+        document.getElementById('playersModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('playersModal').classList.remove('active');
+    }
+
+    function confirmPlayers() {
+        defaultPlayersList.forEach(name => {
+            const checkbox = document.getElementById(getSafeId(name));
+            if (checkbox && checkbox.checked) {
+                addPlayerToTable(name);
+            } else {
+                removePlayerFromTable(name);
+            }
+        });
+        closeModal(); 
+    }
+
+    function addGuestPlayer() {
+        const nameInput = document.getElementById('guestName');
+        const name = nameInput.value.trim();
+        
+        if (!name) {
+            alert('لطفاً نام مهمان را وارد کنید!');
+            return;
+        }
+
+        addPlayerToTable(name);
+        
+        const checkbox = document.getElementById(getSafeId(name));
+        if(checkbox) checkbox.checked = true;
+
+        nameInput.value = ''; 
+        nameInput.focus();
+    }
+
+    function addPlayerToTable(name) {
+        const safeRowId = 'row-' + name.replace(/\s+/g, '-');
+        if (document.getElementById(safeRowId)) return;
+
+        const tbody = document.getElementById('playerRows');
+        const tr = document.createElement('tr');
+        tr.id = safeRowId; 
+
+        const nameTd = document.createElement('td');
+        nameTd.textContent = name;
+        tr.appendChild(nameTd);
+
+        const totalTd = document.createElement('td');
+        totalTd.className = 'total-col';
+        totalTd.textContent = '0';
+        tr.appendChild(totalTd);
+
+        for (let i = 0; i < roundCount; i++) {
+            const td = document.createElement('td');
+            td.innerHTML = `<input type="number" oninput="calculateTotal(this)" placeholder="0">`;
+            tr.appendChild(td);
+        }
+
+        tbody.appendChild(tr);
+    }
+
+    function removePlayerFromTable(name) {
+        const safeRowId = 'row-' + name.replace(/\s+/g, '-');
+        const row = document.getElementById(safeRowId);
+        if (row) {
+            row.remove();
+        }
+    }
+
+    function addRound() {
+        roundCount++;
+        const headerRow = document.getElementById('headerRow');
+        
+        const th = document.createElement('th');
+        th.textContent = 'دور ' + roundCount;
+        headerRow.appendChild(th);
+
+        const tbody = document.getElementById('playerRows');
+        const rows = tbody.getElementsByTagName('tr');
+        
+        for (let row of rows) {
+            const td = document.createElement('td');
+            td.innerHTML = `<input type="number" oninput="calculateTotal(this)" placeholder="0">`;
+            row.appendChild(td);
+        }
+    }
+
+    function calculateTotal(inputElement) {
+        const row = inputElement.closest('tr');
+        const inputs = row.querySelectorAll('input[type="number"]');
+        let sum = 0;
+        
+        inputs.forEach(input => {
+            sum += Number(input.value) || 0; 
+        });
+        
+        const totalCell = row.querySelector('.total-col');
+        totalCell.textContent = sum; 
+    }
+</script>
+
+</body>
+</html>
