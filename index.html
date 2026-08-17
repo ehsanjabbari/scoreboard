@@ -106,10 +106,13 @@
         
         .table-wrapper {
             overflow-x: auto;
+            /* اطمینان از اسکرول نرم در موبایل */
+            -webkit-overflow-scrolling: touch; 
         }
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate; /* برای بهتر کار کردن فریز ستون */
+            border-spacing: 0;
             margin-top: 10px;
         }
         th, td {
@@ -122,6 +125,22 @@
             background-color: #ecf0f1;
             font-weight: bold;
         }
+
+        /* ------------------------------------------- */
+        /* کدهای مربوط به فریز (ثابت) کردن ستون اول */
+        th:first-child, td:first-child {
+            position: sticky;
+            right: 0; /* در حالت راست‌چین، ستون اول سمت راست است */
+            background-color: white; /* برای اینکه ستون‌های زیرین دیده نشوند */
+            z-index: 10;
+            box-shadow: -3px 0 5px -2px rgba(0,0,0,0.1); /* سایه ملایم برای تفکیک */
+        }
+        th:first-child {
+            background-color: #ecf0f1; /* رنگ پس‌زمینه هدر */
+            z-index: 11; /* باید بالاتر از بقیه هدرها و سلول‌ها باشد */
+        }
+        /* ------------------------------------------- */
+
         input[type="number"] {
             width: 60px;
             padding: 8px 4px;
