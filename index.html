@@ -2,9 +2,18 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- کد زیر آیکون تب مرورگر را تغییر می‌دهد -->
+    <!-- جلوگیری از زوم شدن ناخواسته در گوشی -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- آیکون تب مرورگر (اندروید و ویندوز) -->
     <link rel="icon" type="image/png" href="logo.png">
+    
+    <!-- تنظیمات مخصوص آیفون (iOS) -->
+    <link rel="apple-touch-icon" href="logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="جدول بازی">
+    
     <title>جدول امتیازات بازی</title>
     <style>
         body {
@@ -16,6 +25,9 @@
             display: flex;
             flex-direction: column;
             min-height: 95vh;
+            /* جلوگیری از انتخاب متن‌های اضافی در حالت اپلیکیشن */
+            -webkit-user-select: none;
+            user-select: none;
         }
         .container {
             max-width: 900px;
@@ -44,7 +56,7 @@
         .app-logo {
             width: 60px;
             height: 60px;
-            border-radius: 50%; /* این خط لوگو را دایره‌ای می‌کند */
+            border-radius: 50%;
             object-fit: cover;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
@@ -72,6 +84,8 @@
             border-radius: 5px;
             font-family: inherit;
             width: 150px;
+            -webkit-user-select: text; /* اجازه تایپ در کادر */
+            user-select: text;
         }
         button {
             padding: 10px 15px;
@@ -116,6 +130,8 @@
             border-radius: 4px;
             font-family: inherit;
             font-size: 1em;
+            -webkit-user-select: text; /* اجازه تایپ در کادر */
+            user-select: text;
         }
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -209,7 +225,6 @@
 <body>
 
 <div class="container">
-    <!-- بخش جدید هدر شامل لوگو و عنوان -->
     <div class="header-section">
         <img src="logo.png" alt="لوگوی بازی" class="app-logo" onerror="this.style.display='none'">
         <h1>📝 جدول نتایج بازی</h1>
@@ -256,9 +271,11 @@
 <script>
     let roundCount = 0;
     
+    // لیست اسامی پیش‌فرض با اضافه شدن مصطفی، داوود و وحید
     const defaultPlayersList = [
         'مهرداد', 'رامین', 'حسین راموس', 'حسین راد', 'احسان', 
-        'اشکان', 'ایمان', 'محسن', 'مهدی', 'امیر حسین'
+        'اشکان', 'ایمان', 'محسن', 'مهدی', 'امیر حسین',
+        'مصطفی', 'داوود', 'وحید'
     ];
 
     function getSafeId(name) {
