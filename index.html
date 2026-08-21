@@ -2,13 +2,10 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <!-- جلوگیری از زوم شدن ناخواسته در گوشی -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- آیکون تب مرورگر -->
     <link rel="icon" type="image/png" href="logo.png">
     
-    <!-- تنظیمات مخصوص آیفون (iOS) -->
     <link rel="apple-touch-icon" href="logo.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -102,7 +99,6 @@
         .btn-add-round { background-color: #8e44ad; color: white; }
         .btn-add-round:hover { background-color: #732d91; }
         
-        /* استایل دکمه بازی جدید */
         .btn-reset { background-color: #e74c3c; color: white; margin-right: auto;}
         .btn-reset:hover { background-color: #c0392b; }
         
@@ -138,6 +134,21 @@
         th:first-child {
             background-color: #ecf0f1; 
             z-index: 11; 
+        }
+
+        /* استایل اختصاصی برای ردیف دوم (جمع دورها) */
+        #columnTotalsRow td {
+            background-color: #d1ecf1;
+            font-weight: bold;
+            color: #0c5460;
+        }
+        #columnTotalsRow td:first-child {
+            background-color: #b8daff; /* رنگ متفاوت برای قسمت فریز شده این ردیف */
+            z-index: 11; 
+        }
+        #columnTotalsRow .total-col {
+            background-color: #fde3a7;
+            color: #d35400;
         }
 
         input[type="number"] {
@@ -265,6 +276,11 @@
                     <th>نام بازیکن</th>
                     <th class="total-col">جمع کل</th>
                 </tr>
+                <!-- ردیف جدید: جمع هر دور -->
+                <tr id="columnTotalsRow">
+                    <td>📊 جمع ستون‌ها</td>
+                    <td id="grandTotalCell" class="total-col">0</td>
+                </tr>
             </thead>
             <tbody id="playerRows">
             </tbody>
@@ -337,15 +353,22 @@
             const gameData = JSON.parse(saved);
             roundCount = gameData.roundCount;
 
-            // بازیابی هدر جدول
             const headerRow = document.getElementById('headerRow');
+            const columnTotalsRow = document.getElementById('columnTotalsRow');
+            
             for (let i = 1; i <= roundCount; i++) {
+                // بازیابی هدر
                 const th = document.createElement('th');
                 th.textContent = 'دور ' + i;
                 headerRow.appendChild(th);
+
+                // بازیابی خانه‌های ردیف جمع ستون‌ها
+                const colTotalCell = document.createElement('td');
+                colTotalCell.textContent = '0';
+                columnTotalsRow.appendChild(colTotalCell);
             }
 
-            // بازیابی ردیف‌ها و امتیازات
+            // بازیابی ردیف‌ها و امتیازات بازیکنان
             const tbody = document.getElementById('playerRows');
             gameData.players.forEach(player => {
                 const safeRowId = 'row-' + player.name.replace(/\s+/g, '-');
@@ -369,12 +392,11 @@
 
                 tbody.appendChild(tr);
 
-                // تیک زدن چک‌باکس در پاپ‌آپ اگر بازیکن در لیست پیش‌فرض بود
                 const checkbox = document.getElementById(getSafeId(player.name));
                 if (checkbox) checkbox.checked = true;
             });
 
-            // محاسبه مجدد جمع کل‌ها
+            // محاسبه مجدد تمام جمع‌ها
             const rows = document.querySelectorAll('#playerRows tr');
             rows.forEach(row => {
                 const inputs = row.querySelectorAll('input[type="number"]');
@@ -382,6 +404,8 @@
                 inputs.forEach(input => { sum += Number(input.value) || 0; });
                 row.querySelector('.total-col').textContent = sum;
             });
+            
+            calculateColumnTotals();
         }
     }
 
@@ -392,6 +416,35 @@
         }
     }
     // ----------------------------------------------
+
+    // تابع جدید برای محاسبه جمع ستون‌ها
+    function calculateColumnTotals() {
+        const playerRows = document.querySelectorAll('#playerRows tr');
+        const colTotalsRow = document.getElementById('columnTotalsRow');
+        let grandTotal = 0;
+
+        // محاسبه جمع کل همه بازیکنان
+        playerRows.forEach(row => {
+            const rowTotal = Number(row.querySelector('.total-col').textContent) || 0;
+            grandTotal += rowTotal;
+        });
+        document.getElementById('grandTotalCell').textContent = grandTotal;
+
+        // محاسبه جمع تک‌تک دورها (ستون‌ها)
+        for (let c = 0; c < roundCount; c++) {
+            let colSum = 0;
+            playerRows.forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                if (inputs[c]) {
+                    colSum += Number(inputs[c].value) || 0;
+                }
+            });
+            // شاخص 2 به این دلیل است که خانه 0 نام و خانه 1 جمع کل است
+            if (colTotalsRow.cells[c + 2]) {
+                colTotalsRow.cells[c + 2].textContent = colSum;
+            }
+        }
+    }
 
     function openModal() { document.getElementById('playersModal').classList.add('active'); }
     function closeModal() { document.getElementById('playersModal').classList.remove('active'); }
@@ -406,7 +459,8 @@
             }
         });
         closeModal(); 
-        saveData(); // ذخیره بعد از تایید پاپ‌آپ
+        calculateColumnTotals();
+        saveData(); 
     }
 
     function addGuestPlayer() {
@@ -418,7 +472,8 @@
         if(checkbox) checkbox.checked = true;
         nameInput.value = ''; 
         nameInput.focus();
-        saveData(); // ذخیره بعد از اضافه کردن مهمان
+        calculateColumnTotals();
+        saveData(); 
     }
 
     function addPlayerToTable(name) {
@@ -449,16 +504,29 @@
     function removePlayerFromTable(name) {
         const safeRowId = 'row-' + name.replace(/\s+/g, '-');
         const row = document.getElementById(safeRowId);
-        if (row) row.remove();
+        if (row) {
+            row.remove();
+            calculateColumnTotals();
+            saveData();
+        }
     }
 
     function addRound() {
         roundCount++;
+        
+        // اضافه کردن تیتر دور
         const headerRow = document.getElementById('headerRow');
         const th = document.createElement('th');
         th.textContent = 'دور ' + roundCount;
         headerRow.appendChild(th);
 
+        // اضافه کردن خانه خالی به ردیف جمع ستون‌ها
+        const columnTotalsRow = document.getElementById('columnTotalsRow');
+        const colTotalCell = document.createElement('td');
+        colTotalCell.textContent = '0';
+        columnTotalsRow.appendChild(colTotalCell);
+
+        // اضافه کردن اینپوت به تمام بازیکنان
         const tbody = document.getElementById('playerRows');
         const rows = tbody.getElementsByTagName('tr');
         
@@ -467,7 +535,7 @@
             td.innerHTML = `<input type="number" oninput="calculateTotal(this)" placeholder="0">`;
             row.appendChild(td);
         }
-        saveData(); // ذخیره بعد از ایجاد دور جدید
+        saveData(); 
     }
 
     function calculateTotal(inputElement) {
@@ -482,10 +550,11 @@
         const totalCell = row.querySelector('.total-col');
         totalCell.textContent = sum; 
         
-        saveData(); // ذخیره همزمان با تایپ کردن هر عدد!
+        // آپدیت کردن جمع ستون‌ها هر بار که عددی تایپ می‌شود
+        calculateColumnTotals();
+        saveData();
     }
 
-    // هنگام لود شدن صفحه اجرا می‌شود
     renderCheckboxes();
     loadData();
 
