@@ -2,6 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <!-- جلوگیری از زوم شدن ناخواسته در گوشی -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="icon" type="image/png" href="logo.png">
@@ -18,7 +19,7 @@
             background-color: #f4f7f6;
             color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             min-height: 95vh;
@@ -26,10 +27,10 @@
             user-select: none;
         }
         .container {
-            max-width: 900px;
+            max-width: 950px;
             margin: 0 auto;
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             flex: 1;
@@ -42,15 +43,16 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .header-section h1 {
             margin: 0;
             color: #2c3e50;
+            font-size: 1.6em;
         }
         .app-logo {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -59,10 +61,10 @@
         .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 15px;
             align-items: center;
-            padding-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 2px dashed #eee;
             justify-content: space-between;
         }
@@ -74,25 +76,25 @@
         }
 
         input[type="text"] {
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-family: inherit;
-            width: 150px;
+            width: 130px;
             -webkit-user-select: text; 
             user-select: text;
         }
         button {
-            padding: 10px 15px;
+            padding: 10px 12px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-family: inherit;
             font-weight: bold;
             transition: background 0.3s;
-            font-size: 14px;
+            font-size: 13px;
         }
-        .btn-select-players { background-color: #f39c12; color: white; font-size: 15px; }
+        .btn-select-players { background-color: #f39c12; color: white; font-size: 14px; }
         .btn-select-players:hover { background-color: #d68910; }
         .btn-add-player { background-color: #27ae60; color: white; }
         .btn-add-player:hover { background-color: #219150; }
@@ -112,48 +114,78 @@
             border-spacing: 0;
             margin-top: 10px;
         }
+        
+        /* کاهش عرض ستون‌ها و کمتر کردن فاصله‌های داخلی */
         th, td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 6px 4px;
             text-align: center;
-            min-width: 90px;
+            min-width: 65px; /* کمتر کردن حداقل عرض */
+            box-sizing: border-box; /* برای محاسبه دقیق عرض‌ها در حالت فریز */
         }
         th {
             background-color: #ecf0f1;
             font-weight: bold;
+            font-size: 0.95em;
         }
 
-        /* فریز کردن ستون اول */
-        th:first-child, td:first-child {
+        /* ------------------------------------------- */
+        /* فریز کردن ستون اول (نام بازیکن) */
+        th:nth-child(1), td:nth-child(1) {
             position: sticky;
             right: 0; 
             background-color: white; 
             z-index: 10;
-            box-shadow: -3px 0 5px -2px rgba(0,0,0,0.1); 
+            width: 95px;       /* عرض ثابت برای ستون اول */
+            min-width: 95px;
+            max-width: 95px;
+            word-break: break-word; /* شکستن نام‌های طولانی */
+            font-size: 0.9em;
         }
-        th:first-child {
+        th:nth-child(1) {
             background-color: #ecf0f1; 
             z-index: 11; 
         }
 
-        /* استایل اختصاصی برای ردیف دوم (جمع دورها) */
+        /* فریز کردن ستون دوم (جمع کل) */
+        th:nth-child(2), td:nth-child(2) {
+            position: sticky;
+            right: 95px; /* شروع از انتهای ستون اول */
+            z-index: 10;
+            width: 70px;       /* عرض ثابت برای ستون دوم */
+            min-width: 70px;
+            max-width: 70px;
+            box-shadow: -4px 0 6px -3px rgba(0,0,0,0.15); /* انتقال سایه به ستون دوم */
+        }
+        th:nth-child(2) {
+            background-color: #ecf0f1; 
+            z-index: 11; 
+        }
+        td:nth-child(2) {
+            background-color: #fff3cd; /* رنگ پس‌زمینه ستون جمع */
+        }
+        /* ------------------------------------------- */
+
         #columnTotalsRow td {
             background-color: #d1ecf1;
             font-weight: bold;
             color: #0c5460;
+            font-size: 0.9em;
         }
-        #columnTotalsRow td:first-child {
-            background-color: #b8daff; /* رنگ متفاوت برای قسمت فریز شده این ردیف */
+        /* استایل حالت فریز برای ردیف جمع ستون‌ها */
+        #columnTotalsRow td:nth-child(1) {
+            background-color: #b8daff; 
             z-index: 11; 
         }
-        #columnTotalsRow .total-col {
+        #columnTotalsRow td:nth-child(2) {
             background-color: #fde3a7;
-            color: #d35400;
+            z-index: 11; 
         }
 
+        /* کوچک‌تر کردن کادرهای ورود اعداد */
         input[type="number"] {
-            width: 60px;
-            padding: 8px 4px;
+            width: 50px; /* کاهش عرض فیلد عدد */
+            padding: 8px 2px;
             text-align: center;
             border: 1px solid #bdc3c7;
             border-radius: 4px;
@@ -168,8 +200,7 @@
             margin: 0; 
         }
         .total-col {
-            background-color: #fff3cd;
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: bold;
             color: #d35400;
         }
@@ -276,9 +307,9 @@
                     <th>نام بازیکن</th>
                     <th class="total-col">جمع کل</th>
                 </tr>
-                <!-- ردیف جدید: جمع هر دور -->
+                <!-- ردیف جمع ستون‌ها (کمی نامش را خلاصه کردیم تا جا بشود) -->
                 <tr id="columnTotalsRow">
-                    <td>📊 جمع ستون‌ها</td>
+                    <td>📊 جمع</td>
                     <td id="grandTotalCell" class="total-col">0</td>
                 </tr>
             </thead>
@@ -328,7 +359,6 @@
         listContainer.innerHTML = htmlContent;
     }
 
-    // --- توابع مربوط به ذخیره و بازیابی اطلاعات ---
     function saveData() {
         const rows = document.querySelectorAll('#playerRows tr');
         const playersData = [];
@@ -357,18 +387,15 @@
             const columnTotalsRow = document.getElementById('columnTotalsRow');
             
             for (let i = 1; i <= roundCount; i++) {
-                // بازیابی هدر
                 const th = document.createElement('th');
                 th.textContent = 'دور ' + i;
                 headerRow.appendChild(th);
 
-                // بازیابی خانه‌های ردیف جمع ستون‌ها
                 const colTotalCell = document.createElement('td');
                 colTotalCell.textContent = '0';
                 columnTotalsRow.appendChild(colTotalCell);
             }
 
-            // بازیابی ردیف‌ها و امتیازات بازیکنان
             const tbody = document.getElementById('playerRows');
             gameData.players.forEach(player => {
                 const safeRowId = 'row-' + player.name.replace(/\s+/g, '-');
@@ -396,7 +423,6 @@
                 if (checkbox) checkbox.checked = true;
             });
 
-            // محاسبه مجدد تمام جمع‌ها
             const rows = document.querySelectorAll('#playerRows tr');
             rows.forEach(row => {
                 const inputs = row.querySelectorAll('input[type="number"]');
@@ -415,22 +441,18 @@
             location.reload(); 
         }
     }
-    // ----------------------------------------------
 
-    // تابع جدید برای محاسبه جمع ستون‌ها
     function calculateColumnTotals() {
         const playerRows = document.querySelectorAll('#playerRows tr');
         const colTotalsRow = document.getElementById('columnTotalsRow');
         let grandTotal = 0;
 
-        // محاسبه جمع کل همه بازیکنان
         playerRows.forEach(row => {
             const rowTotal = Number(row.querySelector('.total-col').textContent) || 0;
             grandTotal += rowTotal;
         });
         document.getElementById('grandTotalCell').textContent = grandTotal;
 
-        // محاسبه جمع تک‌تک دورها (ستون‌ها)
         for (let c = 0; c < roundCount; c++) {
             let colSum = 0;
             playerRows.forEach(row => {
@@ -439,7 +461,6 @@
                     colSum += Number(inputs[c].value) || 0;
                 }
             });
-            // شاخص 2 به این دلیل است که خانه 0 نام و خانه 1 جمع کل است
             if (colTotalsRow.cells[c + 2]) {
                 colTotalsRow.cells[c + 2].textContent = colSum;
             }
@@ -514,19 +535,16 @@
     function addRound() {
         roundCount++;
         
-        // اضافه کردن تیتر دور
         const headerRow = document.getElementById('headerRow');
         const th = document.createElement('th');
         th.textContent = 'دور ' + roundCount;
         headerRow.appendChild(th);
 
-        // اضافه کردن خانه خالی به ردیف جمع ستون‌ها
         const columnTotalsRow = document.getElementById('columnTotalsRow');
         const colTotalCell = document.createElement('td');
         colTotalCell.textContent = '0';
         columnTotalsRow.appendChild(colTotalCell);
 
-        // اضافه کردن اینپوت به تمام بازیکنان
         const tbody = document.getElementById('playerRows');
         const rows = tbody.getElementsByTagName('tr');
         
@@ -550,7 +568,6 @@
         const totalCell = row.querySelector('.total-col');
         totalCell.textContent = sum; 
         
-        // آپدیت کردن جمع ستون‌ها هر بار که عددی تایپ می‌شود
         calculateColumnTotals();
         saveData();
     }
