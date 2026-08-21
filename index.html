@@ -5,7 +5,7 @@
     <!-- جلوگیری از زوم شدن ناخواسته در گوشی -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- آیکون تب مرورگر (اندروید و ویندوز) -->
+    <!-- آیکون تب مرورگر -->
     <link rel="icon" type="image/png" href="logo.png">
     
     <!-- تنظیمات مخصوص آیفون (iOS) -->
@@ -25,7 +25,6 @@
             display: flex;
             flex-direction: column;
             min-height: 95vh;
-            /* جلوگیری از انتخاب متن‌های اضافی در حالت اپلیکیشن */
             -webkit-user-select: none;
             user-select: none;
         }
@@ -41,7 +40,6 @@
             box-sizing: border-box;
         }
         
-        /* استایل‌های مربوط به هدر و لوگو */
         .header-section {
             display: flex;
             align-items: center;
@@ -84,7 +82,7 @@
             border-radius: 5px;
             font-family: inherit;
             width: 150px;
-            -webkit-user-select: text; /* اجازه تایپ در کادر */
+            -webkit-user-select: text; 
             user-select: text;
         }
         button {
@@ -104,14 +102,17 @@
         .btn-add-round { background-color: #8e44ad; color: white; }
         .btn-add-round:hover { background-color: #732d91; }
         
+        /* استایل دکمه بازی جدید */
+        .btn-reset { background-color: #e74c3c; color: white; margin-right: auto;}
+        .btn-reset:hover { background-color: #c0392b; }
+        
         .table-wrapper {
             overflow-x: auto;
-            /* اطمینان از اسکرول نرم در موبایل */
             -webkit-overflow-scrolling: touch; 
         }
         table {
             width: 100%;
-            border-collapse: separate; /* برای بهتر کار کردن فریز ستون */
+            border-collapse: separate; 
             border-spacing: 0;
             margin-top: 10px;
         }
@@ -126,20 +127,18 @@
             font-weight: bold;
         }
 
-        /* ------------------------------------------- */
-        /* کدهای مربوط به فریز (ثابت) کردن ستون اول */
+        /* فریز کردن ستون اول */
         th:first-child, td:first-child {
             position: sticky;
-            right: 0; /* در حالت راست‌چین، ستون اول سمت راست است */
-            background-color: white; /* برای اینکه ستون‌های زیرین دیده نشوند */
+            right: 0; 
+            background-color: white; 
             z-index: 10;
-            box-shadow: -3px 0 5px -2px rgba(0,0,0,0.1); /* سایه ملایم برای تفکیک */
+            box-shadow: -3px 0 5px -2px rgba(0,0,0,0.1); 
         }
         th:first-child {
-            background-color: #ecf0f1; /* رنگ پس‌زمینه هدر */
-            z-index: 11; /* باید بالاتر از بقیه هدرها و سلول‌ها باشد */
+            background-color: #ecf0f1; 
+            z-index: 11; 
         }
-        /* ------------------------------------------- */
 
         input[type="number"] {
             width: 60px;
@@ -149,7 +148,7 @@
             border-radius: 4px;
             font-family: inherit;
             font-size: 1em;
-            -webkit-user-select: text; /* اجازه تایپ در کادر */
+            -webkit-user-select: text; 
             user-select: text;
         }
         input[type=number]::-webkit-inner-spin-button, 
@@ -164,7 +163,6 @@
             color: #d35400;
         }
 
-        /* پاپ‌آپ */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -231,7 +229,6 @@
         .btn-cancel { background-color: #95a5a6; color: white; margin-left: 10px;}
         .btn-cancel:hover { background-color: #7f8c8d; }
 
-        /* استایل پاورقی (ریز) */
         .credit {
             text-align: center;
             font-size: 10px;
@@ -258,6 +255,7 @@
         </div>
         
         <button class="btn-add-round" onclick="addRound()">+ افزودن دور جدید</button>
+        <button class="btn-reset" onclick="resetGame()">🔄 بازی جدید</button>
     </div>
 
     <div class="table-wrapper">
@@ -290,7 +288,6 @@
 <script>
     let roundCount = 0;
     
-    // لیست اسامی پیش‌فرض با اضافه شدن مصطفی، داوود و وحید
     const defaultPlayersList = [
         'مهرداد', 'رامین', 'حسین راموس', 'حسین راد', 'احسان', 
         'اشکان', 'ایمان', 'محسن', 'مهدی', 'امیر حسین',
@@ -304,7 +301,6 @@
     function renderCheckboxes() {
         const listContainer = document.getElementById('modalCheckboxList');
         let htmlContent = '';
-        
         defaultPlayersList.forEach(name => {
             htmlContent += `
                 <label class="checkbox-item">
@@ -316,15 +312,89 @@
         listContainer.innerHTML = htmlContent;
     }
 
-    renderCheckboxes();
+    // --- توابع مربوط به ذخیره و بازیابی اطلاعات ---
+    function saveData() {
+        const rows = document.querySelectorAll('#playerRows tr');
+        const playersData = [];
+        
+        rows.forEach(row => {
+            const name = row.cells[0].textContent;
+            const inputs = row.querySelectorAll('input[type="number"]');
+            const scores = Array.from(inputs).map(input => input.value);
+            playersData.push({ name, scores });
+        });
 
-    function openModal() {
-        document.getElementById('playersModal').classList.add('active');
+        const gameData = {
+            roundCount: roundCount,
+            players: playersData
+        };
+        localStorage.setItem('gameData', JSON.stringify(gameData));
     }
 
-    function closeModal() {
-        document.getElementById('playersModal').classList.remove('active');
+    function loadData() {
+        const saved = localStorage.getItem('gameData');
+        if (saved) {
+            const gameData = JSON.parse(saved);
+            roundCount = gameData.roundCount;
+
+            // بازیابی هدر جدول
+            const headerRow = document.getElementById('headerRow');
+            for (let i = 1; i <= roundCount; i++) {
+                const th = document.createElement('th');
+                th.textContent = 'دور ' + i;
+                headerRow.appendChild(th);
+            }
+
+            // بازیابی ردیف‌ها و امتیازات
+            const tbody = document.getElementById('playerRows');
+            gameData.players.forEach(player => {
+                const safeRowId = 'row-' + player.name.replace(/\s+/g, '-');
+                const tr = document.createElement('tr');
+                tr.id = safeRowId; 
+
+                const nameTd = document.createElement('td');
+                nameTd.textContent = player.name;
+                tr.appendChild(nameTd);
+
+                const totalTd = document.createElement('td');
+                totalTd.className = 'total-col';
+                totalTd.textContent = '0';
+                tr.appendChild(totalTd);
+
+                player.scores.forEach(scoreVal => {
+                    const td = document.createElement('td');
+                    td.innerHTML = `<input type="number" oninput="calculateTotal(this)" value="${scoreVal}" placeholder="0">`;
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+
+                // تیک زدن چک‌باکس در پاپ‌آپ اگر بازیکن در لیست پیش‌فرض بود
+                const checkbox = document.getElementById(getSafeId(player.name));
+                if (checkbox) checkbox.checked = true;
+            });
+
+            // محاسبه مجدد جمع کل‌ها
+            const rows = document.querySelectorAll('#playerRows tr');
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                let sum = 0;
+                inputs.forEach(input => { sum += Number(input.value) || 0; });
+                row.querySelector('.total-col').textContent = sum;
+            });
+        }
     }
+
+    function resetGame() {
+        if(confirm("آیا مطمئن هستید که می‌خواهید بازی را ریست کنید؟ تمام نتایج صفر خواهند شد.")) {
+            localStorage.removeItem('gameData');
+            location.reload(); 
+        }
+    }
+    // ----------------------------------------------
+
+    function openModal() { document.getElementById('playersModal').classList.add('active'); }
+    function closeModal() { document.getElementById('playersModal').classList.remove('active'); }
 
     function confirmPlayers() {
         defaultPlayersList.forEach(name => {
@@ -336,24 +406,19 @@
             }
         });
         closeModal(); 
+        saveData(); // ذخیره بعد از تایید پاپ‌آپ
     }
 
     function addGuestPlayer() {
         const nameInput = document.getElementById('guestName');
         const name = nameInput.value.trim();
-        
-        if (!name) {
-            alert('لطفاً نام مهمان را وارد کنید!');
-            return;
-        }
-
+        if (!name) { alert('لطفاً نام مهمان را وارد کنید!'); return; }
         addPlayerToTable(name);
-        
         const checkbox = document.getElementById(getSafeId(name));
         if(checkbox) checkbox.checked = true;
-
         nameInput.value = ''; 
         nameInput.focus();
+        saveData(); // ذخیره بعد از اضافه کردن مهمان
     }
 
     function addPlayerToTable(name) {
@@ -378,22 +443,18 @@
             td.innerHTML = `<input type="number" oninput="calculateTotal(this)" placeholder="0">`;
             tr.appendChild(td);
         }
-
         tbody.appendChild(tr);
     }
 
     function removePlayerFromTable(name) {
         const safeRowId = 'row-' + name.replace(/\s+/g, '-');
         const row = document.getElementById(safeRowId);
-        if (row) {
-            row.remove();
-        }
+        if (row) row.remove();
     }
 
     function addRound() {
         roundCount++;
         const headerRow = document.getElementById('headerRow');
-        
         const th = document.createElement('th');
         th.textContent = 'دور ' + roundCount;
         headerRow.appendChild(th);
@@ -406,6 +467,7 @@
             td.innerHTML = `<input type="number" oninput="calculateTotal(this)" placeholder="0">`;
             row.appendChild(td);
         }
+        saveData(); // ذخیره بعد از ایجاد دور جدید
     }
 
     function calculateTotal(inputElement) {
@@ -419,7 +481,14 @@
         
         const totalCell = row.querySelector('.total-col');
         totalCell.textContent = sum; 
+        
+        saveData(); // ذخیره همزمان با تایپ کردن هر عدد!
     }
+
+    // هنگام لود شدن صفحه اجرا می‌شود
+    renderCheckboxes();
+    loadData();
+
 </script>
 
 </body>
